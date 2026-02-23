@@ -1,1 +1,6 @@
 python-telegram-bot==21.6
+pillow==10.4.0
+easyocr==1.7.1
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+rapidfuzz==3.9.6
