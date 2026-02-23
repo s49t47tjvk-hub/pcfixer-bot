@@ -2,8 +2,8 @@ import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, CallbackQueryHandler, ContextTypes, filters
 
-TOKEN = os.getenv("8780321564:AAGjbpmysCEzJ0RUFbBrFtSKXpdSx75V1kU")
-ADMIN_ID = int(os.getenv("ADMIN_ID"))
+TOKEN = os.getenv("BOT_TOKEN")
+ADMIN_ID = int(os.getenv("ADMIN_ID", "0"))
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
@@ -27,14 +27,20 @@ async def callbacks(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await query.answer()
 
     if query.data == "live_support":
+        if ADMIN_ID == 0:
+            await query.edit_message_text("Админ не настроен (ADMIN_ID).")
+            return
+
         user = query.from_user
         await context.bot.send_message(
             chat_id=ADMIN_ID,
-            text=f"🆘 Заявка!\nUser: @{user.username}\nID: {user.id}"
+            text=f"🆘 Заявка!\nUser: @{user.username or 'нет'}\nID: {user.id}"
         )
         await query.edit_message_text("Заявка отправлена.")
 
 def main():
+    if not TOKEN:
+        raise RuntimeError("BOT_TOKEN не задан в переменных окружения")
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.PHOTO, handle_photo))
